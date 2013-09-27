@@ -12,13 +12,14 @@ We can make this more configurable:
     'use strict';
 
     angular.module('chewy', [])
-    .factory('trello', function ($rootScope, $q) {
+    .factory('trello', function ($rootScope, $q, storage) {
         var trello,
             authorized = $q.defer(),
             ready = $q.defer(),
             cache,
-            useCache = true,
-            cacheAll = false;
+            debugMode = false,
+            persistCache = true && debugMode,
+            cacheAll = false && debugMode;
 
         // Calculate board id => details hash
         function getBoards() {
@@ -43,13 +44,13 @@ We can make this more configurable:
             });
         });
 
-        cache = (useCache || cacheAll) ? JSON.parse(localStorage.getItem('cache') || '{}') : {};
+        cache = persistCache ? storage.get('cache') || {} : {};
         function cacheGet(key) {
             return cache[key];
         }
         function cacheSet(key, value) {
             cache[key] = value;
-            localStorage.setItem('cache', JSON.stringify(cache));
+            if (persistCache) storage.set('cache', cache);
         }
 
         trello = {
@@ -113,6 +114,16 @@ We can make this more configurable:
         };
 
         return trello;
+    })
+    .factory('storage', function () {
+        return {
+            get: function (key) {
+                return JSON.parse(localStorage.getItem(key));
+            },
+            set: function (key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+        };
     })
     .factory('dataHelper', function (trello, $q, progressUtils, Progress) {
         var requiredLists = ['Doing', 'Testing', 'Done'],
@@ -224,6 +235,21 @@ We can make this more configurable:
 
                 data.progress.planned.merge(member.progress.planned);
                 data.progress.unplanned.merge(member.progress.unplanned);
+            });
+
+            function calcProgressDonePoints(progress) {
+                var testingMult = 0.5;
+                return progress.done + (progress.testing * testingMult);
+            }
+            function calcMemberDonePoints(member) {
+                return calcProgressDonePoints(member.progress.planned) + calcProgressDonePoints(member.progress.unplanned);
+            }
+
+            // sort the members by done points
+            members.sort(function (a, b) {
+                a = calcMemberDonePoints(a);
+                b = calcMemberDonePoints(b);
+                return b - a;
             });
 
             return data;
@@ -427,14 +453,15 @@ We can make this more configurable:
 
         // Order matters for view
         var types = ['unplanned', 'planned'];
+        // types = types.reverse();
 
         return {
             restrict: 'A',
             template: '' +
                 '<div class="total-planned" style="width: {{planned.percent|percent}}"></div>' +
                 '<div class="segments">' +
-                    '<div ng-repeat="segment in segments" ' +
-                        'ng-hide="segment.percent < 0.00000001" ' +
+                    '<div ng-repeat="segment in segments track by segment.id" ' +
+                        // 'ng-hide="segment.percent < 0.00000001" ' +
                         'title="{{segment.list}} ({{segment.type}}) - {{segment.points}} points ({{segment.percent|percent:2}})" ' +
                         'style="width: {{segment.percent|percent}}" ' +
                         'class="segment list-{{segment.list}} type-{{segment.type}}">' +
@@ -445,9 +472,10 @@ We can make this more configurable:
             link: function (scope, el, attrs) {
                 scope.segments = [];
                 scope.$watch(attrs.progressbar, function (data) {
-
                     var plannedTotal = data.planned.total(),
                         grandTotal = plannedTotal + data.unplanned.total();
+
+                    scope.segments = [];
 
                     // [todo, doing, testing, done]
                     $.each(Progress.attrs, function (i, attr) {
@@ -457,6 +485,7 @@ We can make this more configurable:
                                 percent: percent(progress[attr], grandTotal),
                                 list: attr,
                                 type: type,
+                                id: attr + '_' + type,
                                 points: progress[attr]
                             });
                         });
@@ -484,17 +513,34 @@ We can make this more configurable:
             });
         };
     })
-    .controller('dashboard', function ($scope, dataHelper) {
-        $scope.boardId = $scope.boards[0].id;
+    .controller('dashboard', function ($scope, dataHelper, storage, $timeout) {
+
+        var interval = 2000,
+            timeout;
+
+        $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
+        $scope.$watch('boardId', function (value) {
+            storage.set('board', value);
+        });
+
+        function reload() {
+            $timeout.cancel(timeout);
+
+            return dataHelper.calc($scope.boardId)
+                .then(function (data) {
+                    $scope.data = data;
+                })
+                .finally(function () {
+                    timeout = $timeout(reload, interval);
+                });
+        }
 
         $scope.$watch('boardId', function (value) {
             if (!value) return;
 
             $scope.state = 'loading';
-            dataHelper.calc(value).then(function (data) {
-                console.log('final data', data);
+            reload().then(function () {
                 $scope.state = 'active';
-                $scope.data = data;
             }, function () {
                 $scope.state = 'error';
             });

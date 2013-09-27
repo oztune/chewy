@@ -16,7 +16,7 @@
                     <div progressbar="data.progress" class="board-progress"></div>
                     <h2>Members</h2>
                     <div class="members">
-                        <div ng-repeat="member in data.members" class="member">
+                        <div ng-repeat="member in data.members track by member.id" class="member">
                             <img ng-src="{{member.avatarHash|avatar}}" alt="{{member.fullName}}" />
                             <div class="content">
                                 <p>
