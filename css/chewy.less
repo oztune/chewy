@@ -1,0 +1,160 @@
+@theme-color: #eaeff3;
+@bg-color: @theme-color;
+@item-color: darken(@theme-color, 4%);
+@item-img-size: 50px;
+
+@green: #56a700;
+
+body {
+    background-color: @bg-color;
+}
+
+.member {
+    display: inline-block;
+    vertical-align: top;
+    background: @item-color;
+    padding: 15px;
+
+    img, .content {
+        vertical-align: top;
+    }
+
+    img {
+        margin-right: 6px;
+        width: @item-img-size;
+        height: @item-img-size;
+    }
+
+    .content {
+        display: inline-block;
+
+        h2 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+        }
+        width: 300px;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+
+    // temp
+    // width: 300px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.board-progress {
+    margin: 20px 0;
+}
+
+[progressbar] {
+    @bg: #e0e0e0;
+    background: transparent;//@bg;
+    white-space: nowrap;
+    position: relative;
+    font-size: 0;
+
+    .total-planned {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        box-sizing: content-box;
+    }
+    .total-planned-marker {
+        position: absolute;
+        top: 0;
+        width: 0;
+        z-index: 2;
+    }
+
+    .segments {
+        overflow: hidden;
+    }
+
+    .segment {
+        height: 30px;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+
+    .color(@color) {
+        @darker: darken(@color, 5%);
+
+        background-color: @color;
+        &:hover {
+            opacity: 0.5;
+            //background-color: lighten(@color, 10%);
+        }
+        &.type-unplanned {
+            // background: @darker;
+            // &:hover {
+            //     background: lighten(@darker, 10%);
+            // }
+            // border: 4px solid @color;
+            // border-left: none;
+            // border-right: none;
+            .stripes();
+            // border-left: 2px darken(@color, 20%) dotted;
+        }
+    }
+
+    .stripes() {
+        &:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-image: url('../images/stripes_pattern.png');
+            opacity: 0.2;
+        }
+    }
+
+
+    .segment {
+        opacity: 0.9;
+    }
+    .segment:hover {
+        opacity: 0.5;
+    }
+    .list-done, .list-testing {
+        .color(@green);
+    }
+    .list-testing {
+        .color(lighten(@green, 5%));
+    }
+    .list-doing {
+        .color(darken(@bg, 15%));
+    }
+
+    .segments {
+        box-shadow: 0 2px rgba(0,0,0,0.1) inset;
+        border: 1px solid rgba(0,0,0,0.3);
+    }
+    .segments, .total-planned {
+        border-radius: 3px;
+    }
+    .total-planned {
+        // display: none;
+        @border-width: 1px;
+        border: @border-width solid gray;
+        top: -@border-width;
+        bottom: -@border-width;
+        left: -@border-width;
+    }
+    .total-planned-marker {
+        border-right: 3px solid rgba(0,0,0,0.7);
+        top: -10px;
+        bottom: -10px;
+        height: auto;
+    }
+
+    &.progressbar-small {
+        .segment {
+            height: 10px;
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "name":  "Chewy",
+    "version": "0.0.1",
+    "dependencies": {
+        "jQuery": "2.x",
+        "angular-latest": "*",
+        "bootstrap": "*"
+    }
+}
