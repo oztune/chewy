@@ -1,7 +1,7 @@
-@theme-color: #eaeff3;
+@theme-color: #d6dadf;//#d6d9eb;// #eaeff3;
 @bg-color: @theme-color;
 @item-color: darken(@theme-color, 4%);
-@item-img-size: 50px;
+@item-img-size: 80px;
 
 @bg: #e0e0e0;
 @green: #56a700;
@@ -12,92 +12,17 @@
 @todo-color: @bg;
 @total-color: @bg;
 
+// h1, h2, h3, h4, h5 {
+//     color: black;
+// }
+
 body {
     background-color: @bg-color;
+    color: black;
+    margin-top: 40px;
 }
 
-.member {
-    display: inline-block;
-    vertical-align: top;
-    background: @item-color;
-    padding: 15px;
-
-    img, .content {
-        vertical-align: top;
-    }
-
-    img {
-        margin-right: 6px;
-        width: @item-img-size;
-        height: @item-img-size;
-        border-radius: 4px;
-    }
-
-    .content {
-        display: inline-block;
-
-        h2 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-        }
-        width: 300px;
-        height: 100px;
-        margin-bottom: 10px;
-    }
-
-    // temp
-    // width: 300px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
-/////////
-
-ul.progressbar-legend {
-
-    margin: 0;
-    padding: 0;
-
-    .item(@name, @bg-color, @text-color: white) {
-        background-color: @bg-color;
-        color: @text-color;
-        border: 1px solid @bg-color;
-        &:before {
-            content: @name;
-            color: fade(@text-color, 60%);
-            margin-right: 4px;
-        }
-    }
-
-    list-style: none;
-    li {
-        margin-right: 6px;
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 4px;
-    }
-
-    .type-done {
-        .item("done", @done-color);
-    }
-    .type-testing {
-        .item("testing", @testing-color, black);
-    }
-    .type-doing {
-        .item("doing", @doing-color, black);
-    }
-    .type-todo {
-        .item("todo", @todo-color, black);
-    }
-    .type-total {
-        .item("total", @total-color, black);
-        float: right;
-    }
-}
-
-.board-progress {
-    margin: 20px 0;
-}
+/////////////
 
 [progressbar] {
     background: transparent;//@bg;
@@ -125,7 +50,7 @@ ul.progressbar-legend {
     }
 
     .segment {
-        height: 30px;
+        height: 50px;// 30px;
         display: inline-block;
         position: relative;
         z-index: 1;
@@ -137,12 +62,12 @@ ul.progressbar-legend {
             .stripes();
         }
 
-        &.type-planned {
-            border-right: 1px solid darken(@color, 15%);
-            &:last-child {
-                border-right: none;
-            }
-        }
+        // &.type-planned {
+        //     border-right: 1px solid darken(@color, 15%);
+        //     &:last-child {
+        //         border-right: none;
+        //     }
+        // }
     }
 
     .stripes() {
@@ -184,10 +109,10 @@ ul.progressbar-legend {
 
     .segments {
         //box-shadow: 0 2px rgba(0,0,0,0.1) inset;
-        border: 1px solid rgba(0,0,0,0.3);
+        // border: 1px solid rgba(0,0,0,0.3);
     }
     .segments, .total-planned {
-        border-radius: 3px;
+        border-radius: 6px;
     }
     .total-planned {
         // display: none;
@@ -200,13 +125,123 @@ ul.progressbar-legend {
     .total-planned-marker {
         border-right: 3px solid rgba(0,0,0,0.7);
         top: -10px;
-        bottom: -10px;
+        bottom: 0;//-10px;
         height: auto;
     }
+}
 
-    &.progressbar-small {
-        .segment {
-            height: 10px;
+/////////////
+
+ul.progressbar-legend {
+
+    margin: 0;
+    padding: 0;
+
+    .item(@name, @bg-color, @text-color: white) {
+        background-color: @bg-color;
+        color: @text-color;
+        border: 1px solid @bg-color;
+        font-size: 20px;
+        font-weight: bold;
+        &:before {
+            font-weight: 200;
+            letter-spacing: 1px;
+            content: @name;
+            color: fade(@text-color, 60%);
+            margin-right: 4px;
         }
+    }
+
+    list-style: none;
+    li {
+        margin-right: 6px;
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 4px;
+    }
+
+    .type-done {
+        .item("done", @done-color);
+    }
+    .type-testing {
+        .item("testing", @testing-color, black);
+    }
+    .type-doing {
+        .item("doing", @doing-color, black);
+    }
+    .type-todo {
+        .item("todo", @todo-color, black);
+    }
+    .type-total {
+        .item("total", transparent, black);
+        border-color: black;
+        float: right;
+    }
+}
+
+////////////
+
+h2 {
+    font-weight: 200;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    color: gray;
+}
+
+ul.progressbar-legend {
+    margin-bottom: 50px;
+}
+
+.member {
+    background: white;//@item-color;
+    display: inline-block;
+    .content {
+        vertical-align: top;
+        padding: 15px;
+    }
+
+    img, .doing {
+        vertical-align: top;
+    }
+
+    img {
+        margin-right: 6px;
+        width: @item-img-size;
+        height: @item-img-size;
+        border-radius: 4px;
+    }
+
+    p.doing {
+        display: inline-block;
+        font-size: 20px;
+        width: 300px;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+
+    // temp
+    // width: 300px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+/////////
+
+.board-progress {
+    margin: 20px 0;
+}
+
+[progressbar] .segments {
+    background: #f0f0f0;
+}
+
+.member [progressbar] {
+    background: #f0f0f0;
+    .segments {
+        border-radius: 0;
+        border: none;
+    }
+    .segment {
+        height: 20px;
     }
 }

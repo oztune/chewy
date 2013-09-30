@@ -8,10 +8,19 @@ We can make this more configurable:
 - I think that planned/unplanned should be hard-coded
 */
 
+// Makes it work on StatusBoard
+var skip = true;
+if (window.location.href.indexOf('?') < 0) {
+    setTimeout(function () {
+        window.location.href = '?';
+    }, 100);
+} else {
+    skip = false;
+}
+
 // Globals
 var interval = 5000;
-var debugMode = false;
-
+var debugMode = true;
 
 (function () {
     'use strict';
@@ -80,7 +89,7 @@ var debugMode = false;
             authorize: function () {
                 var deferred = $q.defer();
                 Trello.authorize({
-                    type: 'popup',
+                    //type: 'popup',
                     name: 'Chewy by appFigures',
                     scope: {
                         read: true
@@ -531,6 +540,7 @@ var debugMode = false;
         };
     })
     .controller('main', function ($scope, trello, Progress) {
+        if (skip) return;
         $scope.progressAttrs = Progress.attrs;
         $scope.state = 'unauthorized';
 
@@ -544,15 +554,20 @@ var debugMode = false;
                 });
             });
         };
+
+        $scope.authorize();
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout) {
-
         var timeout;
 
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.$watch('boardId', function (value) {
             storage.set('board', value);
         });
+
+        function toGrid(array, numCols) {
+
+        }
 
         function reload() {
             $timeout.cancel(timeout);
