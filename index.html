@@ -11,6 +11,10 @@
             <button class="btn" ng-switch-when="unauthorized" ng-click="authorize()">Log in to Trello</button>
             <div ng-controller="dashboard" ng-switch-when="authorized" ng-switch="state">
                 <select ng-model="boardId" ng-options="board.id as board.name for board in boards"></select>
+                <span ng-switch="refreshStatus">
+                    <span ng-switch-when="loading">loading...</span>
+                    <span ng-switch-when="error">error</span>
+                </span>
                 <div ng-switch-when="loading">Loading</div>
                 <div ng-switch-when="active">
                     <div progressbar="data.progress" class="board-progress"></div>

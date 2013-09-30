@@ -17,9 +17,9 @@ We can make this more configurable:
             authorized = $q.defer(),
             ready = $q.defer(),
             cache,
-            debugMode = false,
+            debugMode = true,
             persistCache = true && debugMode,
-            cacheAll = false && debugMode;
+            cacheAll = true && debugMode;
 
         // Calculate board id => details hash
         function getBoards() {
@@ -126,8 +126,7 @@ We can make this more configurable:
         };
     })
     .factory('dataHelper', function (trello, $q, progressUtils, Progress) {
-        var requiredLists = ['Doing', 'Testing', 'Done'],
-            minNumLists = 4;
+        var parsePattern = /^\((\d+\.*\d*) *(->)? *(\d+\.*\d*)?\)/;
 
         return {
             calc: function (boardId) {
@@ -140,12 +139,6 @@ We can make this more configurable:
                     return $q.all([
                         // Get all the lists in the board
                         trello.getBoardLists(board.id).then(function(lists) {
-                            // Sanity tests
-                            $.each(requiredLists, function (i, name) {
-                                // TODO: Test here
-                            });
-                            if (lists.length < minNumLists) throw 'Board ' + board.name + ' doesn\'t have enough lists';
-                            
                             // Grab the cards for each list
                             return $q.all($.map(lists, function (list) {
                                 return trello.getListCards(list.id);
@@ -188,10 +181,73 @@ We can make this more configurable:
             }
         };
 
-        function transform (lists, members) {
-            var data = {};
+        // Utils
 
-            data.iterationName = lists[0].name;
+        // TODO: Write a test for this method
+        // Parse meta data out of name
+        // ex:
+        //      [1] asdasd      => {start: 1, end: 1, unplanned: false}
+        //      [2->1] asdasd   => {start: 2, end: 1, unplanned: false}
+        //      * [0.5] asdasd   => {start: 0.5, end: 0.5, unplanned: true}
+        function parseMetaFromName(name) {
+            var unplanned = false, match, start;
+
+            name = $.trim(name);
+
+            if (name.charAt(0) === '*') {
+                unplanned = true;
+                name = $.trim(name.substr(1));
+            }
+
+            match = parsePattern.exec(name) || [];
+            start = parseFloat(match[1]) || 0;
+
+            if (match.length <= 0) return null;
+
+            return {
+                start: start,
+                end: parseFloat(match[3]) || start,
+                unplanned: unplanned,
+                getPoints: function () {
+                    // We count the points the iteration started with
+                    // not what they morphed to.
+                    return this.start;
+                }
+            };
+        }
+
+        function transform (lists, members) {
+            var data = {},
+                mainLists = {
+                    'todo': lists[0],
+                    'doing': getList('Doing'),
+                    'testing': getList('Testing'),
+                    'done': getList('Done')
+                };
+
+            function calcMeta(item) {
+                item.meta = parseMetaFromName(item.name);
+            }
+
+            // Get the meta-data out of each card/checklist/list
+            $.each(mainLists, function (listType, list) {
+                if (!list) return;
+
+                $.each(list.cards, function (i, card) {
+                    calcMeta(card);
+
+                    $.each(card.checklists, function (i, checklist) {
+                        calcMeta(checklist);
+
+                        $.each(checklist.checkItems, function (i, item) {
+                            calcMeta(item);
+                        });
+                    });
+                });
+            });
+            console.log(mainLists);
+
+            data.iterationName = mainLists.todo.name;
             data.members = members;
 
             function getList(name) {
@@ -204,16 +260,11 @@ We can make this more configurable:
             }
 
             // Calculate all the cards each member is doing
-            $.each({
-                'todo': lists[0],
-                'doing': getList('Doing'),
-                'testing': getList('Testing'),
-                'done': getList('Done')
-            }, function (varName, list) {
-                if (!list) throw 'No list for ' + varName;
+            $.each(mainLists, function (listType, list) {
+                if (!list) return;
                 $.each(members, function (i, member) {
                     member.chewy = member.chewy || {};
-                    member.chewy[varName] = $.map(list.cards, function (card) {
+                    member.chewy[listType] = $.map(list.cards, function (card) {
                         if ($.inArray(member.id, card.idMembers) >= 0) {
                             return card;
                         }
@@ -221,6 +272,7 @@ We can make this more configurable:
                 });
             });
             
+            // Calculate the progress
             // For the templating
             data.progress = {
                 planned: new Progress(),
@@ -294,7 +346,7 @@ We can make this more configurable:
     })
     .factory('progressUtils', function (Progress) {
         // Parsing points out of checklist item name
-        var parsePattern = /^\[(\d+\.*\d*) *(->)? *(\d+\.*\d*)?\]/;
+        var parsePattern = /^\((\d+\.*\d*) *(->)? *(\d+\.*\d*)?\)/;
 
         // These two functions are where the points calculations get done
 
@@ -312,29 +364,64 @@ We can make this more configurable:
         function calcCardProgress(card, listType, unplannedToggle) {
             var progress = new Progress();
 
-            // For testing boards that aren't marked properly
-            // if (true) {
-            //     if (!unplannedToggle) {
-            //         progress[listType] = 1;
-            //     }
-            //     return progress;
+            function addMeta(meta) {
+                if (meta.unplanned !== unplannedToggle) return;
+                progress[listType] += meta.getPoints();
+            }
+
+            if (card.meta) {
+                addMeta(card.meta);
+            } else {
+                $.each(card.checklists, function (i, checklist) {
+                    var listPoints;
+
+                    if (checklist.meta) {
+                        addMeta(checklist.meta);
+                    } else {
+                        listPoints = calcChecklistPoints(checklist, unplannedToggle);
+                        // total = listPoints.complete + listPoints.incomplete;
+
+                        if (listType === 'doing') {
+                            progress.doing += listPoints.incomplete;
+                            progress.testing += listPoints.complete;
+                        } else {
+                            progress[listType] += listPoints.complete + listPoints.incomplete;
+                        }
+
+                        // if (listType === 'todo') {
+                        //     progress.todo += total;
+                        // } else if (listType === 'doing') {
+                        //     progress.doing += listPoints.incomplete;
+                        //     progress.testing += listPoints.complete;
+                        // } else if (listType === 'testing') {
+                        //     progress.testing += total;
+                        // } else if (listType === 'done') {
+                        //     progress.done += total;
+                        // }
+                    }
+                });
+            }
+
+            // if (unplannedToggle === false && progress.total() === 0) {
+            //     // For testing boards that aren't marked properly
+            //     progress[listType] += 1;
             // }
 
-            $.each(card.checklists, function (i, checklist) {
-                var listPoints = calcChecklistPoints(checklist, unplannedToggle),
-                    total = listPoints.complete + listPoints.incomplete;
+            // $.each(card.checklists, function (i, checklist) {
+            //     var listPoints = calcChecklistPoints(checklist, unplannedToggle),
+            //         total = listPoints.complete + listPoints.incomplete;
 
-                if (listType === 'todo') {
-                    progress.todo += total;
-                } else if (listType === 'doing') {
-                    progress.doing += listPoints.incomplete;
-                    progress.testing += listPoints.complete;
-                } else if (listType === 'testing') {
-                    progress.testing += total;
-                } else if (listType === 'done') {
-                    progress.done += total;
-                }
-            });
+            //     if (listType === 'todo') {
+            //         progress.todo += total;
+            //     } else if (listType === 'doing') {
+            //         progress.doing += listPoints.incomplete;
+            //         progress.testing += listPoints.complete;
+            //     } else if (listType === 'testing') {
+            //         progress.testing += total;
+            //     } else if (listType === 'done') {
+            //         progress.done += total;
+            //     }
+            // });
 
             return progress;
         }
@@ -350,13 +437,10 @@ We can make this more configurable:
             };
 
             $.each(checklist.checkItems, function (i, item) {
-                var points = parseItemPoints(item.name);
-
-                if (points.unplanned !== unplannedToggle) return;
-
-                // We count the points the iteration started with
-                // not what they morphed to.
-                out[item.state] += points.start;
+                var meta = item.meta;
+                if (!meta) return;
+                if (meta.unplanned !== meta) return;
+                out[item.state] += meta.getPoints();
             });
 
             return out;
@@ -370,25 +454,25 @@ We can make this more configurable:
         //      [1] asdasd      => {start: 1, end: 1, unplanned: false}
         //      [2->1] asdasd   => {start: 2, end: 1, unplanned: false}
         //      * [0.5] asdasd   => {start: 0.5, end: 0.5, unplanned: true}
-        function parseItemPoints(itemName) {
-            var unplanned = false, match, start;
+        // function parseItemPoints(itemName) {
+        //     var unplanned = false, match, start;
 
-            itemName = $.trim(itemName);
+        //     itemName = $.trim(itemName);
 
-            if (itemName.charAt(0) === '*') {
-                unplanned = true;
-                itemName = $.trim(itemName.substr(1));
-            }
+        //     if (itemName.charAt(0) === '*') {
+        //         unplanned = true;
+        //         itemName = $.trim(itemName.substr(1));
+        //     }
 
-            match = parsePattern.exec(itemName) || [];
-            start = parseFloat(match[1]) || 0;
+        //     match = parsePattern.exec(itemName) || [];
+        //     start = parseFloat(match[1]) || 0;
 
-            return {
-                start: start,
-                end: parseFloat(match[3]) || start,
-                unplanned: unplanned
-            };
-        }
+        //     return {
+        //         start: start,
+        //         end: parseFloat(match[3]) || start,
+        //         unplanned: unplanned
+        //     };
+        // }
 
         return {
             // @param memberCards {'doing': [cards], 'testing': [cards], ...}
@@ -515,7 +599,7 @@ We can make this more configurable:
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout) {
 
-        var interval = 2000,
+        var interval = 10000,
             timeout;
 
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
@@ -526,9 +610,14 @@ We can make this more configurable:
         function reload() {
             $timeout.cancel(timeout);
 
+            $scope.refreshStatus = 'loading';
+
             return dataHelper.calc($scope.boardId)
                 .then(function (data) {
+                    $scope.refreshStatus = 'active';
                     $scope.data = data;
+                }, function () {
+                    $scope.refreshStatus = 'error';
                 })
                 .finally(function () {
                     timeout = $timeout(reload, interval);
