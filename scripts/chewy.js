@@ -17,7 +17,7 @@ We can make this more configurable:
             authorized = $q.defer(),
             ready = $q.defer(),
             cache,
-            debugMode = true,
+            debugMode = false,
             persistCache = true && debugMode,
             cacheAll = true && debugMode;
 
