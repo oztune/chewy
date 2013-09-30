@@ -18,10 +18,18 @@
                 <div ng-switch-when="loading">Loading</div>
                 <div ng-switch-when="active">
                     <div progressbar="data.progress" class="board-progress"></div>
+                    <ul class="progressbar-legend">
+                        <li ng-repeat="type in progressAttrs" class="type-{{type}}">
+                            {{data.progress.planned[type] + data.progress.unplanned[type]}}
+                        </li>
+                        <li class="type-total">
+                            {{data.progress.planned.total() + data.progress.unplanned.total()}}
+                        </li>
+                    </ul>
                     <h2>Members</h2>
                     <div class="members">
                         <div ng-repeat="member in data.members track by member.id" class="member">
-                            <img ng-src="{{member.avatarHash|avatar}}" alt="{{member.fullName}}" />
+                            <img ng-src="{{member.avatarHash|avatar:50}}" alt="{{member.fullName}}" title="{{member.fullName}}" />
                             <div class="content">
                                 <p>
                                     <strong>Doing</strong>

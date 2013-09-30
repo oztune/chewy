@@ -8,6 +8,11 @@ We can make this more configurable:
 - I think that planned/unplanned should be hard-coded
 */
 
+// Globals
+var interval = 5000;
+var debugMode = false;
+
+
 (function () {
     'use strict';
 
@@ -17,7 +22,6 @@ We can make this more configurable:
             authorized = $q.defer(),
             ready = $q.defer(),
             cache,
-            debugMode = false,
             persistCache = true && debugMode,
             cacheAll = true && debugMode;
 
@@ -245,7 +249,6 @@ We can make this more configurable:
                     });
                 });
             });
-            console.log(mainLists);
 
             data.iterationName = mainLists.todo.name;
             data.members = members;
@@ -345,9 +348,6 @@ We can make this more configurable:
         return Progress;
     })
     .factory('progressUtils', function (Progress) {
-        // Parsing points out of checklist item name
-        var parsePattern = /^\((\d+\.*\d*) *(->)? *(\d+\.*\d*)?\)/;
-
         // These two functions are where the points calculations get done
 
         // Given a card and the list its in (todo, doing, testing, done)
@@ -379,7 +379,6 @@ We can make this more configurable:
                         addMeta(checklist.meta);
                     } else {
                         listPoints = calcChecklistPoints(checklist, unplannedToggle);
-                        // total = listPoints.complete + listPoints.incomplete;
 
                         if (listType === 'doing') {
                             progress.doing += listPoints.incomplete;
@@ -387,41 +386,9 @@ We can make this more configurable:
                         } else {
                             progress[listType] += listPoints.complete + listPoints.incomplete;
                         }
-
-                        // if (listType === 'todo') {
-                        //     progress.todo += total;
-                        // } else if (listType === 'doing') {
-                        //     progress.doing += listPoints.incomplete;
-                        //     progress.testing += listPoints.complete;
-                        // } else if (listType === 'testing') {
-                        //     progress.testing += total;
-                        // } else if (listType === 'done') {
-                        //     progress.done += total;
-                        // }
                     }
                 });
             }
-
-            // if (unplannedToggle === false && progress.total() === 0) {
-            //     // For testing boards that aren't marked properly
-            //     progress[listType] += 1;
-            // }
-
-            // $.each(card.checklists, function (i, checklist) {
-            //     var listPoints = calcChecklistPoints(checklist, unplannedToggle),
-            //         total = listPoints.complete + listPoints.incomplete;
-
-            //     if (listType === 'todo') {
-            //         progress.todo += total;
-            //     } else if (listType === 'doing') {
-            //         progress.doing += listPoints.incomplete;
-            //         progress.testing += listPoints.complete;
-            //     } else if (listType === 'testing') {
-            //         progress.testing += total;
-            //     } else if (listType === 'done') {
-            //         progress.done += total;
-            //     }
-            // });
 
             return progress;
         }
@@ -454,26 +421,6 @@ We can make this more configurable:
         //      [1] asdasd      => {start: 1, end: 1, unplanned: false}
         //      [2->1] asdasd   => {start: 2, end: 1, unplanned: false}
         //      * [0.5] asdasd   => {start: 0.5, end: 0.5, unplanned: true}
-        // function parseItemPoints(itemName) {
-        //     var unplanned = false, match, start;
-
-        //     itemName = $.trim(itemName);
-
-        //     if (itemName.charAt(0) === '*') {
-        //         unplanned = true;
-        //         itemName = $.trim(itemName.substr(1));
-        //     }
-
-        //     match = parsePattern.exec(itemName) || [];
-        //     start = parseFloat(match[1]) || 0;
-
-        //     return {
-        //         start: start,
-        //         end: parseFloat(match[3]) || start,
-        //         unplanned: unplanned
-        //     };
-        // }
-
         return {
             // @param memberCards {'doing': [cards], 'testing': [cards], ...}
             //  todo
@@ -545,7 +492,7 @@ We can make this more configurable:
                 '<div class="total-planned" style="width: {{planned.percent|percent}}"></div>' +
                 '<div class="segments">' +
                     '<div ng-repeat="segment in segments track by segment.id" ' +
-                        // 'ng-hide="segment.percent < 0.00000001" ' +
+                        'ng-hide="segment.percent < 0.00000001" ' +
                         'title="{{segment.list}} ({{segment.type}}) - {{segment.points}} points ({{segment.percent|percent:2}})" ' +
                         'style="width: {{segment.percent|percent}}" ' +
                         'class="segment list-{{segment.list}} type-{{segment.type}}">' +
@@ -583,7 +530,8 @@ We can make this more configurable:
             }
         };
     })
-    .controller('main', function ($scope, trello) {
+    .controller('main', function ($scope, trello, Progress) {
+        $scope.progressAttrs = Progress.attrs;
         $scope.state = 'unauthorized';
 
         $scope.authorize = function () {
@@ -599,8 +547,7 @@ We can make this more configurable:
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout) {
 
-        var interval = 10000,
-            timeout;
+        var timeout;
 
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.$watch('boardId', function (value) {

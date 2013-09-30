@@ -3,7 +3,14 @@
 @item-color: darken(@theme-color, 4%);
 @item-img-size: 50px;
 
+@bg: #e0e0e0;
 @green: #56a700;
+
+@done-color: @green;
+@testing-color: #baec41;
+@doing-color: darken(@bg, 15%);
+@todo-color: @bg;
+@total-color: @bg;
 
 body {
     background-color: @bg-color;
@@ -46,18 +53,60 @@ body {
 
 /////////
 
+ul.progressbar-legend {
+
+    margin: 0;
+    padding: 0;
+
+    .item(@name, @bg-color, @text-color: white) {
+        background-color: @bg-color;
+        color: @text-color;
+        border: 1px solid @bg-color;
+        &:before {
+            content: @name;
+            color: fade(@text-color, 60%);
+            margin-right: 4px;
+        }
+    }
+
+    list-style: none;
+    li {
+        margin-right: 6px;
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 4px;
+    }
+
+    .type-done {
+        .item("done", @done-color);
+    }
+    .type-testing {
+        .item("testing", @testing-color, black);
+    }
+    .type-doing {
+        .item("doing", @doing-color, black);
+    }
+    .type-todo {
+        .item("todo", @todo-color, black);
+    }
+    .type-total {
+        .item("total", @total-color, black);
+        float: right;
+    }
+}
+
 .board-progress {
     margin: 20px 0;
 }
 
 [progressbar] {
-    @bg: #e0e0e0;
     background: transparent;//@bg;
     white-space: nowrap;
     position: relative;
     font-size: 0;
 
     .total-planned {
+        display: none;
         position: absolute;
         top: 0;
         left: 0;
@@ -124,14 +173,13 @@ body {
         opacity: 0.5;
     }
     .list-done, .list-testing {
-        .color(@green);
+        .color(@done-color);
     }
     .list-testing {
-        .color(lighten(@green, 5%));
-        .color(#baec41);
+        .color(@testing-color);
     }
     .list-doing {
-        .color(darken(@bg, 15%));
+        .color(@doing-color);
     }
 
     .segments {
@@ -161,27 +209,4 @@ body {
             height: 10px;
         }
     }
-
-    /////
-
-    // .segment.ng-hide-add,
-    // .segment.ng-hide-remove {
-    //   -webkit-transition:0.5s linear all;
-    //   -moz-transition:0.5s linear all;
-    //   -o-transition:0.5s linear all;
-    //   transition:0.5s linear all;
-    //   display:block!important;
-    // }
-    // .segment.ng-hide-remove {
-    //   opacity:0;
-    // }
-    // .segment.ng-hide-remove.ng-hide-remove-active {
-    //   opacity:1;
-    // }
-    // .segment.ng-hide-add {
-    //   opacity:1;
-    // }
-    // .segment.ng-hide-add.ng-hide-add-active {
-    //   opacity:0;
-    // }
 }
