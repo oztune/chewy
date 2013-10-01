@@ -12,7 +12,7 @@
             <div class="uistate uistate-loading">
                 <div class="uistate-content">
                     <div class="spinner"></div>
-                    <h5>Authorizing</h5>
+                    <h3>Authorizing</h3>
                 </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
                         <div class="pull-right">
                             <select ng-model="boardId" ng-options="board.id as board.name for board in boards"></select>
                             <span ng-switch="refreshStatus">
-                                <span ng-switch-when="loading">refreshing...</span>
+                                <span ng-switch-when="loading"><div class="spinner"></div></span>
                                 <span ng-switch-when="error">error</span>
                             </span>
                         </div>
@@ -35,10 +35,8 @@
                 <div ng-switch-when="loading">
                     <div class="uistate uistate-loading">
                         <div class="uistate-content">
-                            <!-- <div class="spinner spinner-chewy"></div> -->
-                            <!-- <img src="" style="width: 100%" /> -->
                             <img ng-src="{{loadingImage}}" style="width: 100%" />
-                            <h5>Loading lists and cards</h5>
+                            <h3>Loading board...</h3>
                         </div>
                     </div>
                 </div>

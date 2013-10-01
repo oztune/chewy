@@ -12,6 +12,15 @@ We can make this more configurable:
 var interval = 5000;
 var debugMode = false;
 
+var globals = {
+    listPatterns: {
+        'todo': /todo/i,
+        'doing': /doing/i,
+        'testing': /testing/i,
+        'done': /done/i
+    }
+};
+
 (function () {
     'use strict';
 
@@ -237,20 +246,32 @@ var debugMode = false;
         }
 
         function transform (lists, members) {
-            var data = {},
-                mainLists = {
-                    'todo': lists[0],
-                    'doing': getList('Doing'),
-                    'testing': getList('Testing'),
-                    'done': getList('Done')
-                };
+            var data = {};
+
+            function getList(name) {
+                var exp = globals.listPatterns[name],
+                    out = null;
+
+                if (!exp) return null;
+
+                $.each(lists, function (i, list) {
+                    //if (list.name === name) out = list;
+                    if (exp.test(list.name)) {
+                        out = list;
+                        return false;
+                    }
+                });
+
+                return out;
+            }
 
             function calcMeta(item) {
                 item.meta = parseMetaFromName(item.name);
             }
 
             // Get the meta-data out of each card/checklist/list
-            $.each(mainLists, function (listType, list) {
+            $.each(Progress.attrs, function (i, listType) {
+                var list = getList(listType);
                 if (!list) return;
 
                 $.each(list.cards, function (i, card) {
@@ -266,23 +287,15 @@ var debugMode = false;
                 });
             });
 
-            data.iterationName = mainLists.todo.name;
             data.members = members;
 
-            function getList(name) {
-                var out = null;
-                $.each(lists, function (i, list) {
-                    if (list.name === name) out = list;
-                });
-
-                return out;
-            }
-
             // Calculate all the cards each member is doing
-            $.each(mainLists, function (listType, list) {
-                if (!list) return;
+            $.each(Progress.attrs, function (i, listType) {
+                var list = getList(listType);
+
                 $.each(members, function (i, member) {
                     member.chewy = member.chewy || {};
+                    if (!list) return;
                     member.chewy[listType] = $.map(list.cards, function (card) {
                         if ($.inArray(member.id, card.idMembers) >= 0) {
                             return card;
@@ -604,9 +617,12 @@ var debugMode = false;
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
         var timeout,
-            images = ['http://media2.giphy.com/media/11EpXR36El6jU4/giphy.gif', 'http://31.media.tumblr.com/tumblr_ltr1h3ElWS1qm0f2jo1_500.gif'];
+            images = ['http://media2.giphy.com/media/11EpXR36El6jU4/giphy.gif',
+                'http://31.media.tumblr.com/tumblr_ltr1h3ElWS1qm0f2jo1_500.gif',
+                'http://media.giphy.com/media/9BUvG6lOT32Ug/giphy.gif',
+                'http://media.giphy.com/media/lqrJPaWIsjTZS/giphy.gif',
+                'http://media.giphy.com/media/v1OZhO6b57iHm/giphy.gif'];
 
-        // $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.$watch('boardId', function (value) {
             storage.set('board', value);
