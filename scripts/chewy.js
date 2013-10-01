@@ -8,14 +8,21 @@ We can make this more configurable:
 - I think that planned/unplanned should be hard-coded
 */
 
-// Makes it work on StatusBoard
-var skip = true;
-if (window.location.href.indexOf('?') < 0) {
-    setTimeout(function () {
-        window.location.href = '?';
-    }, 100);
-} else {
-    skip = false;
+// // Makes it work on StatusBoard
+// var skip = true;
+// if (window.location.href.indexOf('?') < 0) {
+//     setTimeout(function () {
+//         window.location.href += '?';
+//     }, 100);
+// } else {
+//     skip = false;
+// }
+
+var href = window.location.href,
+    len = href.length;
+
+if (href.charAt(len - 1) === '/') {
+    window.location.replace(href.substr(href, len - 1));
 }
 
 // Globals
@@ -533,7 +540,7 @@ var debugMode = false;
         };
     })
     .controller('main', function ($scope, trello) {
-        if (skip) return;
+        //if (skip) return;
         $scope.state = 'unauthorized';
 
         $scope.authorize = function () {
@@ -569,6 +576,15 @@ var debugMode = false;
 
             return rows;
         };
+    })
+    .config(function ($locationProvider) {
+        $locationProvider.html5Mode(true).hashPrefix('!');
+    })
+    .run(function ($location, $rootScope, $window) {
+        var params = $location.search();
+        if (params.statusboard) {
+            $rootScope.statusboard = true;
+        }
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
         var timeout;
