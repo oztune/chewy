@@ -20,7 +20,7 @@ if (window.location.href.indexOf('?') < 0) {
 
 // Globals
 var interval = 5000;
-var debugMode = true;
+var debugMode = false;
 
 (function () {
     'use strict';
@@ -497,21 +497,14 @@ var debugMode = true;
 
         return {
             restrict: 'A',
-            template: '' +
-                '<div class="total-planned" style="width: {{planned.percent|percent}}"></div>' +
-                '<div class="segments">' +
-                    '<div ng-repeat="segment in segments track by segment.id" ' +
-                        'ng-hide="segment.percent < 0.00000001" ' +
-                        'title="{{segment.list}} ({{segment.type}}) - {{segment.points}} points ({{segment.percent|percent:2}})" ' +
-                        'style="width: {{segment.percent|percent}}" ' +
-                        'class="segment list-{{segment.list}} type-{{segment.type}}">' +
-                    '</div>' +
-                '</div>' +
-                '<div class="total-planned-marker" style="left: {{planned.percent|percent}}" ng-hide="planned.percent > 0.99999"></div>' +
-            '',
+            scope: {
+                'data': '=progressbar'
+            },
+            templateUrl: 'templates/progressbar.html',
             link: function (scope, el, attrs) {
+                scope.progressAttrs = Progress.attrs;
                 scope.segments = [];
-                scope.$watch(attrs.progressbar, function (data) {
+                scope.$watch('data', function (data) {
                     var plannedTotal = data.planned.total(),
                         grandTotal = plannedTotal + data.unplanned.total();
 
@@ -539,9 +532,8 @@ var debugMode = true;
             }
         };
     })
-    .controller('main', function ($scope, trello, Progress) {
+    .controller('main', function ($scope, trello) {
         if (skip) return;
-        $scope.progressAttrs = Progress.attrs;
         $scope.state = 'unauthorized';
 
         $scope.authorize = function () {

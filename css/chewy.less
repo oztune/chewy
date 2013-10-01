@@ -16,6 +16,10 @@
 //     color: black;
 // }
 
+[ng-cloak] {
+    display: none !important;
+}
+
 body {
     background-color: @bg-color;
     color: black;
@@ -128,54 +132,52 @@ body {
         bottom: 0;//-10px;
         height: auto;
     }
-}
 
-/////////////
+    ul.progressbar-legend {
+        margin: 0;
+        padding: 0;
+        margin-top: 8px;
 
-ul.progressbar-legend {
-
-    margin: 0;
-    padding: 0;
-
-    .item(@name, @bg-color, @text-color: white) {
-        background-color: @bg-color;
-        color: @text-color;
-        border: 1px solid @bg-color;
-        font-size: 20px;
-        font-weight: bold;
-        &:before {
-            font-weight: 200;
-            letter-spacing: 1px;
-            content: @name;
-            color: fade(@text-color, 60%);
-            margin-right: 4px;
+        .item(@name, @bg-color, @text-color: white) {
+            background-color: @bg-color;
+            color: @text-color;
+            border: 1px solid @bg-color;
+            font-size: 20px;
+            font-weight: bold;
+            &:before {
+                font-weight: 200;
+                letter-spacing: 1px;
+                content: @name;
+                color: fade(@text-color, 60%);
+                margin-right: 4px;
+            }
         }
-    }
 
-    list-style: none;
-    li {
-        margin-right: 6px;
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 4px;
-    }
+        list-style: none;
+        li {
+            margin-right: 6px;
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 4px;
+        }
 
-    .type-done {
-        .item("done", @done-color);
-    }
-    .type-testing {
-        .item("testing", @testing-color, black);
-    }
-    .type-doing {
-        .item("doing", @doing-color, black);
-    }
-    .type-todo {
-        .item("todo", @todo-color, black);
-    }
-    .type-total {
-        .item("total", transparent, black);
-        border-color: black;
-        float: right;
+        .type-done {
+            .item("done", @done-color);
+        }
+        .type-testing {
+            .item("testing", @testing-color, black);
+        }
+        .type-doing {
+            .item("doing", @doing-color, black);
+        }
+        .type-todo {
+            .item("todo", @todo-color, black);
+        }
+        .type-total {
+            .item("total", transparent, black);
+            border-color: black;
+            float: right;
+        }
     }
 }
 
@@ -188,16 +190,18 @@ h2 {
     color: gray;
 }
 
-ul.progressbar-legend {
-    margin-bottom: 50px;
-}
-
 .member {
-    background: white;//@item-color;
+    @border-radius: 4px;
+
     display: inline-block;
+    margin-right: 30px;
+    margin-bottom: 30px;
+
     .content {
+        background: white;//@item-color;
         vertical-align: top;
         padding: 15px;
+        border-radius: @border-radius @border-radius 0 0;
     }
 
     img, .doing {
@@ -219,29 +223,33 @@ ul.progressbar-legend {
         margin-bottom: 10px;
     }
 
-    // temp
-    // width: 300px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    [progressbar] {
+        .segments {
+            border-radius: 0 0 @border-radius @border-radius;
+            border: none;
+        }
+        .segment {
+            height: 20px;
+        }
+
+        .progressbar-legend li {
+            font-size: 16px;
+            font-weight: normal;
+            padding: 2px 8px;
+
+            &:before {
+                display: none;
+            }
+        }
+    }
 }
 
 /////////
 
 .board-progress {
-    margin: 20px 0;
+    margin: 20px 0 50px;
 }
 
 [progressbar] .segments {
     background: #f0f0f0;
-}
-
-.member [progressbar] {
-    background: #f0f0f0;
-    .segments {
-        border-radius: 0;
-        border: none;
-    }
-    .segment {
-        height: 20px;
-    }
 }
