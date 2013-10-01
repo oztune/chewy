@@ -549,17 +549,34 @@ var debugMode = false;
 
         $scope.authorize();
     })
-    .controller('dashboard', function ($scope, dataHelper, storage, $timeout) {
+    .filter('grid', function () {
+        return function (array, numCols) {
+            var len, numRows, rows, i, j;
+
+            numCols = numCols || 1;
+
+            len = array.length;
+            numRows = Math.floor(len / numCols);
+            rows = [];
+
+            for (i = 0; i < numRows; ++i) {
+                rows[i] = [];
+                rows[i].index = i;
+                for (j = 0; j < numCols; ++j) {
+                    rows[i][j] = array[j + i * numCols];
+                }
+            }
+
+            return rows;
+        };
+    })
+    .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
         var timeout;
 
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.$watch('boardId', function (value) {
             storage.set('board', value);
         });
-
-        function toGrid(array, numCols) {
-
-        }
 
         function reload() {
             $timeout.cancel(timeout);
@@ -570,6 +587,7 @@ var debugMode = false;
                 .then(function (data) {
                     $scope.refreshStatus = 'active';
                     $scope.data = data;
+                    $scope.membersGrid = $filter('grid')($scope.data.members, 2);
                 }, function () {
                     $scope.refreshStatus = 'error';
                 })

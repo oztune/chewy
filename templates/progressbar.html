@@ -1,13 +1,15 @@
-<div class="total-planned" style="width: {{planned.percent|percent}}"></div>
-<div class="segments">
-    <div ng-repeat="segment in segments track by segment.id" 
-        ng-hide="segment.percent < 0.00000001" 
-        title="{{segment.list}} ({{segment.type}}) - {{segment.points}} points ({{segment.percent|percent:2}})" 
-        style="width: {{segment.percent|percent}}" 
-        class="segment list-{{segment.list}} type-{{segment.type}}">
+<div class="bar">
+    <div class="total-planned" style="width: {{planned.percent|percent}}"></div>
+    <div class="segments">
+        <div ng-repeat="segment in segments track by segment.id" 
+            ng-hide="segment.percent < 0.00000001" 
+            title="{{segment.list}} ({{segment.type}}) - {{segment.points}} points ({{segment.percent|percent:2}})" 
+            style="width: {{segment.percent|percent}}" 
+            class="segment list-{{segment.list}} type-{{segment.type}}">
+        </div>
     </div>
+    <div class="total-planned-marker" style="left: {{planned.percent|percent}}" ng-hide="planned.percent > 0.99999"></div>
 </div>
-<div class="total-planned-marker" style="left: {{planned.percent|percent}}" ng-hide="planned.percent > 0.99999"></div>
 <ul class="progressbar-legend">
     <li ng-repeat="type in progressAttrs" class="type-{{type}}">
         {{data.planned[type] + data.unplanned[type]}}

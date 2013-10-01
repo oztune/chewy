@@ -21,26 +21,28 @@
                     <div progressbar="data.progress" class="board-progress"></div>
                     <h2>Members</h2>
                     <div class="members">
-                        <div ng-repeat="member in data.members track by member.id" class="member">
-                            <div class="content">
-                                <img ng-src="{{member.avatarHash|avatar:50}}" alt="{{member.fullName}}" title="{{member.fullName}}" />
-                                <p class="doing">
-                                    <strong>Doing</strong>
-                                    <span ng-pluralize
-                                        ng-class="{muted: member.doingNames.length == 0}"
-                                        count="member.doingNames.length"
-                                        offset="2"
-                                        when="{
-                                            '0': 'nothing',
-                                            '1': '{{member.doingNames[0]}}',
-                                            '2': '{{member.doingNames[0]}}, {{member.doingNames[1]}}',
-                                            'one': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + 1',
-                                            'other': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + {}'
-                                        }">
-                                    </span>
-                                </p>
+                        <div ng-repeat="row in membersGrid track by $index" class="row">
+                            <div ng-repeat="member in row track by member.id" class="member col-md-6">
+                                <div class="content">
+                                    <img ng-src="{{member.avatarHash|avatar:50}}" alt="{{member.fullName}}" title="{{member.fullName}}" />
+                                    <p class="doing">
+                                        <strong>Doing</strong>
+                                        <span ng-pluralize
+                                            ng-class="{muted: member.doingNames.length == 0}"
+                                            count="member.doingNames.length"
+                                            offset="2"
+                                            when="{
+                                                '0': 'nothing',
+                                                '1': '{{member.doingNames[0]}}',
+                                                '2': '{{member.doingNames[0]}}, {{member.doingNames[1]}}',
+                                                'one': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + 1',
+                                                'other': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + {}'
+                                            }">
+                                        </span>
+                                    </p>
+                                </div>
+                                <div progressbar="member.progress"></div>
                             </div>
-                            <div progressbar="member.progress"></div>
                         </div>
                     </div>
                 </div>

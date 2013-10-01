@@ -34,6 +34,10 @@ body {
     position: relative;
     font-size: 0;
 
+    .bar {
+        position: relative;
+    }
+
     .total-planned {
         display: none;
         position: absolute;
@@ -129,7 +133,7 @@ body {
     .total-planned-marker {
         border-right: 3px solid rgba(0,0,0,0.7);
         top: -10px;
-        bottom: 0;//-10px;
+        bottom: 0;
         height: auto;
     }
 
@@ -190,12 +194,12 @@ h2 {
     color: gray;
 }
 
+.members .row {
+    margin-bottom: 40px;
+}
+
 .member {
     @border-radius: 4px;
-
-    display: inline-block;
-    margin-right: 30px;
-    margin-bottom: 30px;
 
     .content {
         background: white;//@item-color;
