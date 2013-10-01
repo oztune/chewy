@@ -1,0 +1,42 @@
+@grayLight: #c0c0c0;
+
+.uistate {
+    // background: #f0f0f0;
+    // .border-radius(5px);
+    height: 300px;
+
+    // center align
+
+    display: table;
+    width: 100%;
+    text-align: center;
+
+    .uistate-content {
+        display: table-cell;
+        vertical-align: middle;
+
+        > h1 {
+            font-weight: 300;
+            font-size: 20px;
+            margin: 0 0 10px 0;
+        }
+        > p {
+            font-size: 14px;
+            color: @grayLight;
+            width: 350px;
+            margin: 0 auto;
+        }
+    }
+}
+
+.uistate-empty {
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.uistate-error .error-message p {
+    font-size: 14px;
+    color: @grayLight;
+    width: 350px;
+    margin: 0 auto;
+}
