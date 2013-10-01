@@ -8,23 +8,6 @@ We can make this more configurable:
 - I think that planned/unplanned should be hard-coded
 */
 
-// // Makes it work on StatusBoard
-// var skip = true;
-// if (window.location.href.indexOf('?') < 0) {
-//     setTimeout(function () {
-//         window.location.href += '?';
-//     }, 100);
-// } else {
-//     skip = false;
-// }
-
-var href = window.location.href,
-    len = href.length;
-
-if (href.charAt(len - 1) === '/') {
-    window.location.replace(href.substr(href, len - 1));
-}
-
 // Globals
 var interval = 5000;
 var debugMode = false;
@@ -138,7 +121,10 @@ var debugMode = false;
     .factory('storage', function () {
         return {
             get: function (key) {
-                return JSON.parse(localStorage.getItem(key));
+                var value = localStorage.getItem(key);
+                if (typeof value !== 'string') return;
+                if (value === 'undefined') return;
+                return JSON.parse(value);
             },
             set: function (key, value) {
                 localStorage.setItem(key, JSON.stringify(value));
@@ -228,10 +214,24 @@ var debugMode = false;
                 start: start,
                 end: parseFloat(match[3]) || start,
                 unplanned: unplanned,
-                getPoints: function () {
-                    // We count the points the iteration started with
-                    // not what they morphed to.
-                    return this.start;
+                getPoints: function (unplannedToggle) {
+
+                    // Old way:
+                    // if (unplannedToggle !== this.unplanned) return 0;
+                    // return this.start;
+
+                    // New way: Count extra points as unplanned
+                    var plannedPoints, unplannedPoints;
+
+                    if (this.unplanned) {
+                        plannedPoints = 0;
+                        unplannedPoints = this.end;
+                    } else {
+                        plannedPoints = this.start;
+                        unplannedPoints = Math.max(this.end - this.start, 0);
+                    }
+
+                    return unplannedToggle ? unplannedPoints : plannedPoints;
                 }
             };
         }
@@ -299,9 +299,11 @@ var debugMode = false;
             };
 
             $.each(members, function (i, member) {
-                member.doingNames = $.map(member.chewy.doing, function (card) {
-                    return card.name;
-                });
+                if (member.chewy.doing) {
+                    member.doingNames = $.map(member.chewy.doing, function (card) {
+                        return card.name;
+                    });
+                }
                 member.progress = progressUtils.calcMemberProgress(member.chewy);
 
                 data.progress.planned.merge(member.progress.planned);
@@ -381,8 +383,8 @@ var debugMode = false;
             var progress = new Progress();
 
             function addMeta(meta) {
-                if (meta.unplanned !== unplannedToggle) return;
-                progress[listType] += meta.getPoints();
+                // if (meta.unplanned !== unplannedToggle) return;
+                progress[listType] += meta.getPoints(unplannedToggle);
             }
 
             if (card.meta) {
@@ -422,8 +424,9 @@ var debugMode = false;
             $.each(checklist.checkItems, function (i, item) {
                 var meta = item.meta;
                 if (!meta) return;
-                if (meta.unplanned !== meta) return;
-                out[item.state] += meta.getPoints();
+                // if (meta.unplanned !== unplannedToggle) return;
+
+                out[item.state] += meta.getPoints(unplannedToggle);
             });
 
             return out;
@@ -539,23 +542,6 @@ var debugMode = false;
             }
         };
     })
-    .controller('main', function ($scope, trello) {
-        //if (skip) return;
-        $scope.state = 'unauthorized';
-
-        $scope.authorize = function () {
-            trello.authorize();
-
-            trello.ready.then(function () {
-                $scope.state = 'authorized';
-                $scope.boards = $.map(trello.boards, function (board) {
-                    return board;
-                });
-            });
-        };
-
-        $scope.authorize();
-    })
     .filter('grid', function () {
         return function (array, numCols) {
             var len, numRows, rows, i, j;
@@ -581,18 +567,52 @@ var debugMode = false;
         $locationProvider.html5Mode(true).hashPrefix('!');
     })
     .run(function ($location, $rootScope, $window) {
+        function hasParam(name) {
+            return params[name] || params[name + '/'];
+        }
+
         var params = $location.search();
-        if (params.statusboard) {
+        if (hasParam('statusboard')) {
             $rootScope.statusboard = true;
+
+            if (!hasParam('noreload')) {
+                // reload in a few
+                $location.search('noreload', true);
+
+                setTimeout(function () {
+                    $window.location.reload();
+                }, 1000);
+            }
         }
     })
-    .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
-        var timeout;
+    .controller('main', function ($scope, trello, storage) {
+        //if (skip) return;
+        $scope.state = 'unauthorized';
 
+        $scope.authorize = function () {
+            trello.authorize();
+
+            trello.ready.then(function () {
+                $scope.state = 'authorized';
+                $scope.boards = $.map(trello.boards, function (board) {
+                    return board;
+                });
+            });
+        };
+
+        $scope.authorize();
+    })
+    .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
+        var timeout,
+            images = ['http://media2.giphy.com/media/11EpXR36El6jU4/giphy.gif', 'http://31.media.tumblr.com/tumblr_ltr1h3ElWS1qm0f2jo1_500.gif'];
+
+        // $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.boardId = storage.get('board') || ($scope.boards[0] && $scope.boards[0].id);
         $scope.$watch('boardId', function (value) {
             storage.set('board', value);
         });
+
+        $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
         function reload() {
             $timeout.cancel(timeout);

@@ -1,3 +1,5 @@
+@import "uistate.less";
+
 @theme-color: #d6dadf;//#d6d9eb;// #eaeff3;
 @bg-color: @theme-color;
 @item-color: darken(@theme-color, 4%);
@@ -16,6 +18,17 @@
 //     color: black;
 // }
 
+header[role="banner"] {
+    // background-color: #634f39;
+}
+
+.spinner {
+    background-image: url('http://giphy.com/static/img/loader_purple.gif');
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+}
+
 [ng-cloak] {
     display: none !important;
 }
@@ -23,7 +36,6 @@
 body {
     background-color: @bg-color;
     color: black;
-    margin-top: 40px;
 }
 
 /////////////
