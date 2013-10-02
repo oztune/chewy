@@ -692,4 +692,4 @@ var globals = {
     });
 }());
 
-$.backstretch('http://mantia.me/goodies/desktops/orangebricks_wide.jpg');
+$.backstretch('https://dl.dropboxusercontent.com/u/16070076/orangebricks_wide.jpg');
