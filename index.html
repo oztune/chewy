@@ -21,14 +21,18 @@
                 <div class="container">
                     <div class="navbar-header">
                         <a class="navbar-brand">Chewy</a>
-                        <div class="pull-right">
-                            <select ng-model="boardId" ng-options="board.id as board.name for board in boards"></select>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a>
                             <span ng-switch="refreshStatus">
-                                <span ng-switch-when="loading"><div class="spinner"></div></span>
+                                <div class="spinner spinner-24" ng-switch-when="loading"></div>
                                 <span ng-switch-when="error">error</span>
                             </span>
-                        </div>
-                    </div>
+                        </a></li>
+                        <li><a>
+                            <select ng-model="boardId" ng-options="board.id as board.name for board in boards"></select>
+                        </a></li>
+                    </ul>
                 </div>
             </header>
             <div class="container">
@@ -41,7 +45,7 @@
                     </div>
                 </div>
                 <div ng-switch-when="active">
-                    <div progressbar="data.progress" class="board-progress"></div>
+                    <div progressbar="data.progress" class="board-progress" dates="dates"></div>
                     <h2>Members</h2>
                     <div class="members">
                         <div ng-repeat="row in membersGrid track by $index" class="row">
@@ -64,7 +68,7 @@
                                         </span>
                                     </p>
                                 </div>
-                                <div progressbar="member.progress"></div>
+                                <div progressbar="member.progress" dates="dates"></div>
                             </div>
                         </div>
                     </div>
@@ -74,7 +78,10 @@
         <script type="text/javascript" src="libs/jquery.js"></script>
         <script type="text/javascript" src="libs/angular.js"></script>
         <script type="text/javascript" src="libs/jquery.backstretch.min.js"></script>
-        <script type="text/javascript" src="scripts/chewy.js"></script>
+        <script type="text/javascript" src="libs/moment.js"></script>
+
         <script src="https://api.trello.com/1/client.js?key=7f1fd18d0a397f3d0664ae319a624315"></script>
+
+        <script type="text/javascript" src="scripts/chewy.js"></script>
     </body>
 </html>
