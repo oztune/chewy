@@ -10,7 +10,7 @@ We can make this more configurable:
 
 // Globals
 var interval = 5000;
-var debugMode = true;
+var debugMode = false;
 
 var globals = {
     listPatterns: {
