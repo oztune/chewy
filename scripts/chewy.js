@@ -548,7 +548,8 @@ var globals = {
                 scope.segments = [];
                 scope.$watch('data', function (data) {
                     var plannedTotal = data.planned.total(),
-                        grandTotal = plannedTotal + data.unplanned.total();
+                        grandTotal = plannedTotal + data.unplanned.total(),
+                        dates;
 
                     scope.segments = [];
 
@@ -572,7 +573,7 @@ var globals = {
                     };
 
                     // Calculate date
-                    var dates = scope.$parent.$eval(attrs.dates);
+                    dates = scope.$parent.$eval(attrs.dates);
                     if (dates) {
                         scope.time = calcBusinessDaysBetween(dates[0], moment()) / calcBusinessDaysBetween(dates[0], dates[1]);
                     } else {
