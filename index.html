@@ -46,7 +46,6 @@
                 </div>
                 <div ng-switch-when="active">
                     <div progressbar="data.progress" class="board-progress" dates="dates"></div>
-                    <h2>Members</h2>
                     <div class="members">
                         <div ng-repeat="row in membersGrid track by $index" class="row">
                             <div ng-repeat="member in row track by member.id" class="member col-md-6">
