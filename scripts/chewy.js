@@ -661,4 +661,4 @@ var globals = {
     });
 }());
 
-$.backstretch('https://d2k1ftgv7pobq7.cloudfront.net/images/backgrounds/ocean/ede6927e92b4515102b2d86e919c77fa/large.jpg');
+$.backstretch('http://mantia.me/goodies/desktops/orangebricks_wide.jpg');
