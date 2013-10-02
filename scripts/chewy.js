@@ -575,7 +575,7 @@ var globals = {
                     // Calculate date
                     dates = scope.$parent.$eval(attrs.dates);
                     if (dates) {
-                        scope.time = calcBusinessDaysBetween(dates[0], moment()) / calcBusinessDaysBetween(dates[0], dates[1]);
+                        scope.time = (1+ calcBusinessDaysBetween(dates[0], moment())) / calcBusinessDaysBetween(dates[0], dates[1]);
                     } else {
                         scope.time = 0;
                     }
