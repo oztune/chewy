@@ -10,7 +10,7 @@ We can make this more configurable:
 
 // Globals
 var interval = 5000;
-var debugMode = false;
+var debugMode = true;
 
 var globals = {
     listPatterns: {
@@ -510,13 +510,32 @@ var globals = {
         };
     })
     .directive('progressbar', function (Progress) {
+        // Order matters for view
+        var types = ['unplanned', 'planned'];
+
         function percent(amount, total) {
             return total > 0 ? amount / total : 0;
         }
 
-        // Order matters for view
-        var types = ['unplanned', 'planned'];
-        // types = types.reverse();
+        function calcBusinessDaysBetween(from, to) {
+            var count = 0, from, day;
+
+            if (from.isAfter(to)) return 0;
+
+            from = from.clone();
+
+            while (!from.isSame(to, 'day') && !from.isAfter(to)) {
+                day = from.day();
+
+                // sat || sun
+                if (day !== 6 && day !== 0) {
+                    ++count;
+                }
+                from.add(1, 'day');
+            }
+
+            return count;
+        }
 
         return {
             restrict: 'A',
@@ -551,6 +570,14 @@ var globals = {
                         percent: percent(plannedTotal, grandTotal),
                         points: plannedTotal
                     };
+
+                    // Calculate date
+                    var dates = scope.$parent.$eval(attrs.dates);
+                    if (dates) {
+                        scope.time = calcBusinessDaysBetween(dates[0], moment()) / calcBusinessDaysBetween(dates[0], dates[1]);
+                    } else {
+                        scope.time = 0;
+                    }
                 });
             }
         };
@@ -629,6 +656,9 @@ var globals = {
         });
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
+
+        var startDate = moment('9/30/2013');
+        $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
 
         function reload() {
             $timeout.cancel(timeout);

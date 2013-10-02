@@ -20,6 +20,12 @@
 
 header[role="banner"] {
     // background-color: #634f39;
+    .spinner-24 {
+        opacity: 0.5;
+        @s: 15px;
+        width: @s;
+        height: @s;
+    }
 }
 
 .spinner {
@@ -27,6 +33,11 @@ header[role="banner"] {
     width: 40px;
     height: 40px;
     display: inline-block;
+}
+.spinner-24 {
+    background-image: url('../images/spinner-24.gif');
+    width: 24px;
+    height: 24px;
 }
 
 [ng-cloak] {
@@ -58,10 +69,8 @@ body {
         bottom: 0;
         box-sizing: content-box;
     }
-    .total-planned-marker {
+    .marker {
         position: absolute;
-        top: 0;
-        width: 0;
         z-index: 2;
     }
 
@@ -130,10 +139,6 @@ body {
         .color(transparent);
     }
 
-    .segments {
-        //box-shadow: 0 2px rgba(0,0,0,0.1) inset;
-        // border: 1px solid rgba(0,0,0,0.3);
-    }
     .segments, .total-planned {
         border-radius: 6px;
     }
@@ -145,11 +150,40 @@ body {
         bottom: -@border-width;
         left: -@border-width;
     }
-    .total-planned-marker {
+
+    .marker-total-planned {
+        position: absolute;
         border-right: 3px solid rgba(0,0,0,0.7);
-        top: -10px;
+        top: 0;//-10px;
         bottom: 0;
         height: auto;
+    }
+    .marker-time {
+        top: -10px;
+        border-right: 1px solid black;
+        bottom: 0;
+
+        &:before {
+            content: 'now';
+            display: block;
+            position: absolute;
+            bottom: 100%;
+            font-size: 16px;
+            left: -14px;
+        }
+
+        &:after {
+            @size: 4px;
+            position: absolute;
+            content: '';
+            width: 0;
+            height: 0;
+            border: @size solid black;
+            border-bottom: none;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            margin-left: -@size;
+        }
     }
 
     ul.progressbar-legend {
@@ -250,6 +284,13 @@ h2 {
         }
         .segment {
             height: 20px;
+        }
+
+        .marker-time {
+            border-color: rgba(0,0,0,0.2);
+            &:before {
+                display: none;
+            }
         }
 
         .progressbar-legend li {
