@@ -658,7 +658,7 @@ var globals = {
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
-        var startDate = moment('9/30/2013');
+        var startDate = moment('10/13/2013');
         $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
 
         function reload() {
