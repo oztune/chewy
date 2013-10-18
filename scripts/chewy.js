@@ -25,6 +25,12 @@ var globals = {
     'use strict';
 
     angular.module('chewy', [])
+    .run(function ($rootScope) {
+        $rootScope.clearTrelloAuth = function () {
+            window.localStorage && localStorage.removeItem('trello_token');
+            alert('removed trello token');
+        }
+    })
     .factory('trello', function ($rootScope, $q, storage) {
         var trello,
             authorized = $q.defer(),

@@ -14,9 +14,9 @@
 </div>
 <ul class="progressbar-legend">
     <li ng-repeat="type in progressAttrs" class="type-{{type}}">
-        {{data.planned[type] + data.unplanned[type]}}
+        {{(data.planned[type] + data.unplanned[type])|number:2}}
     </li>
     <li class="type-total">
-        {{data.planned.total() + data.unplanned.total()}}
+        {{(data.planned.total() + data.unplanned.total())|number:2}}
     </li>
 </ul>
