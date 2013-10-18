@@ -47,6 +47,19 @@ header[role="banner"] {
 body {
     background-color: @bg-color;
     color: black;
+
+    position: relative;
+    &:before {
+        content: "";
+        background-image: url('https://photos-5.dropbox.com/t/0/AABUr4lWKHpsHf88Prpo-oAItOeqAzV9XqroxyW3OS4UFA/12/20209187/jpeg/1024x768/3/1382144400/0/2/Photo%20Oct%2018%2C%207%2021%2050%20PM.jpg/v9A_jRGN43HVsgqqUDQ9KUldQzTixXc9evt_BXYHwrw');//http://dribbble.s3.amazonaws.com/users/112473/screenshots/963968/attachments/110353/HighRes.jpg');
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        // -webkit-filter: blur(20px);
+    }
 }
 
 /////////////
