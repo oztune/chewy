@@ -236,7 +236,7 @@ var globals = {
                         plannedPoints = 0;
                         unplannedPoints = this.end;
                     } else {
-                        plannedPoints = this.start;
+                        plannedPoints = this.end;
                         unplannedPoints = Math.max(this.end - this.start, 0);
                     }
 
