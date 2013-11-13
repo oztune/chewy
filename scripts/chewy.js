@@ -589,7 +589,7 @@ var globals = {
                     // Calculate date
                     dates = scope.$parent.$eval(attrs.dates);
                     if (dates) {
-                        scope.time = calcBusinessDaysBetween(dates[0], moment()) / calcBusinessDaysBetween(dates[0], dates[1]);
+                        scope.time = (1+ calcBusinessDaysBetween(dates[0], moment())) / calcBusinessDaysBetween(dates[0], dates[1]);
                     } else {
                         scope.time = 0;
                     }
@@ -677,7 +677,7 @@ var globals = {
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
-        var startDate = moment('9/30/2013').add(2 * 1, 'weeks');
+        var startDate = moment('11/11/2013');
         $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
 
         function reload() {
@@ -710,3 +710,5 @@ var globals = {
         });
     });
 }());
+
+$.backstretch('https://dl.dropboxusercontent.com/u/16070076/orangebricks_wide.jpg');

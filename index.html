@@ -46,7 +46,6 @@
                 </div>
                 <div ng-switch-when="active">
                     <div progressbar="data.progress" class="board-progress" dates="dates"></div>
-                    <h2>Members</h2>
                     <div class="members">
                         <div ng-repeat="row in membersGrid track by $index" class="row">
                             <div ng-repeat="member in row track by member.id" class="member col-md-6">
@@ -77,6 +76,7 @@
         </div>
         <script type="text/javascript" src="libs/jquery.js"></script>
         <script type="text/javascript" src="libs/angular.js"></script>
+        <script type="text/javascript" src="libs/jquery.backstretch.min.js"></script>
         <script type="text/javascript" src="libs/moment.js"></script>
 
         <script src="https://api.trello.com/1/client.js?key=7f1fd18d0a397f3d0664ae319a624315"></script>
