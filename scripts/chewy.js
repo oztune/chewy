@@ -141,7 +141,7 @@ var globals = {
         };
     })
     .factory('dataHelper', function (trello, $q, progressUtils, Progress) {
-        var parsePattern = /^\((\d+\.*\d*) *(->)? *(\d+\.*\d*)?\)/;
+        var parsePattern = /^\((\d+:*\.*\d*) *(->)? *(\d+:*\.*\d*)?\)/;
 
         return {
             calc: function (boardId) {
@@ -199,11 +199,12 @@ var globals = {
         // Utils
 
         // TODO: Write a test for this method
-        // Parse meta data out of name
+        // Parse points of out checklist item name
         // ex:
-        //      [1] asdasd      => {start: 1, end: 1, unplanned: false}
-        //      [2->1] asdasd   => {start: 2, end: 1, unplanned: false}
-        //      * [0.5] asdasd   => {start: 0.5, end: 0.5, unplanned: true}
+        //      (1) asdasd      => {start: 1, end: 1, unplanned: false}
+        //      (2->1) asdasd   => {start: 2, end: 1, unplanned: false}
+        //      * (0.5) asdasd   => {start: 0.5, end: 0.5, unplanned: true}
+        //      (0:30) asdasd   => {start: 0.5, end: 0.5, unplanned: false}
         function parseMetaFromName(name) {
             var unplanned = false, match, start;
 
@@ -215,13 +216,13 @@ var globals = {
             }
 
             match = parsePattern.exec(name) || [];
-            start = parseFloat(match[1]) || 0;
+            start = parsePointsFromString(match[1]) || 0;
 
             if (match.length <= 0) return null;
 
             return {
                 start: start,
-                end: parseFloat(match[3]) || start,
+                end: parsePointsFromString(match[3]) || start,
                 unplanned: unplanned,
                 getPoints: function (unplannedToggle) {
 
@@ -236,13 +237,32 @@ var globals = {
                         plannedPoints = 0;
                         unplannedPoints = this.end;
                     } else {
-                        plannedPoints = this.start;
+                        plannedPoints = this.end;
                         unplannedPoints = Math.max(this.end - this.start, 0);
                     }
 
                     return unplannedToggle ? unplannedPoints : plannedPoints;
                 }
             };
+        }
+
+        // input:
+        // 0.5 (30 minutes)
+        // 0:30 (hh:mm)
+        function parsePointsFromString(string) {
+            var num;
+
+            if (!string) return 0;
+
+            if (string.indexOf(':') >= 0) {
+                num = moment.duration(string)._milliseconds / 1000 / 60 / 60;
+            } else {
+                num = parseFloat(string);
+            }
+
+            if (typeof num !== 'number' || isNaN(num)) return null;
+
+            return num;
         }
 
         function transform (lists, members) {
@@ -447,12 +467,6 @@ var globals = {
 
         // Utils
 
-        // TODO: Write a test for this method
-        // Parse points of out checklist item name
-        // ex:
-        //      [1] asdasd      => {start: 1, end: 1, unplanned: false}
-        //      [2->1] asdasd   => {start: 2, end: 1, unplanned: false}
-        //      * [0.5] asdasd   => {start: 0.5, end: 0.5, unplanned: true}
         return {
             // @param memberCards {'doing': [cards], 'testing': [cards], ...}
             //  todo
@@ -641,6 +655,11 @@ var globals = {
             });
         };
 
+        $scope.clearTrelloAuth = function () {
+            window.localStorage && localStorage.removeItem('trello_token');
+            alert('removed trello token');
+        }
+
         $scope.authorize();
     })
     .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
@@ -658,7 +677,7 @@ var globals = {
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
-        var startDate = moment('9/30/2013');
+        var startDate = moment('9/30/2013').add(2 * 1, 'weeks');
         $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
 
         function reload() {
