@@ -648,6 +648,7 @@ var globals = {
     .controller('main', function ($scope, trello, storage) {
         //if (skip) return;
         $scope.state = 'unauthorized';
+        $scope.version = '1.1';
 
         $scope.authorize = function () {
             trello.authorize();
