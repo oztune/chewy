@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html ng-app="chewy" ng-class="{statusboard: statusboard}">
+    <head>
+        <title>Chewy</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+        <link rel="stylesheet/less" type="text/css" href="css/chewy.less" />
+        <script type="text/javascript" src="bower_components/less/dist/less-1.6.1.min.js"></script>
+    </head>
+    <body ng-controller="main" ng-switch="state">
+        <div ng-switch-default>
+            <div class="uistate uistate-loading">
+                <div class="uistate-content">
+                    <div class="spinner"></div>
+                    <h3>Authorizing</h3>
+                </div>
+            </div>
+        </div>
+        <div ng-controller="dashboard" ng-switch-when="authorized" ng-switch="state" ng-cloak>
+            <header class="navbar navbar-inverse navbar-static-top" role="banner">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" ng-click="clearTrelloAuth()">Chewy</a>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a>
+                            <span ng-switch="refreshStatus">
+                                <div class="spinner spinner-24" ng-switch-when="loading"></div>
+                                <span ng-switch-when="error">error</span>
+                            </span>
+                        </a></li>
+                        <li><a>
+                            <select ng-model="boardId" ng-options="board.id as board.name for board in boards"></select>
+                        </a></li>
+                    </ul>
+                </div>
+            </header>
+            <div class="container">
+                <div ng-switch-when="loading">
+                    <div class="uistate uistate-loading">
+                        <div class="uistate-content">
+                            <img ng-src="{{loadingImage}}" style="width: 100%" />
+                            <h3>Loading board...</h3>
+                        </div>
+                    </div>
+                </div>
+                <div ng-switch-when="active">
+                    <div progressbar="data.progress" class="board-progress" dates="dates"></div>
+                    <h2>Members</h2>
+                    <div class="members">
+                        <div ng-repeat="row in membersGrid track by $index" class="row">
+                            <div ng-repeat="member in row track by member.id" class="member col-md-6">
+                                <div class="content">
+                                    <img ng-src="{{member.avatarHash|avatar:50}}" alt="{{member.fullName}}" title="{{member.fullName}}" />
+                                    <p class="doing">
+                                        <strong>Doing</strong>
+                                        <span ng-pluralize
+                                            ng-class="{muted: member.doingNames.length == 0}"
+                                            count="member.doingNames.length"
+                                            offset="2"
+                                            when="{
+                                                '0': 'nothing',
+                                                '1': '{{member.doingNames[0]}}',
+                                                '2': '{{member.doingNames[0]}}, {{member.doingNames[1]}}',
+                                                'one': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + 1',
+                                                'other': '{{member.doingNames[0]}}, {{member.doingNames[1]}} + {}'
+                                            }">
+                                        </span>
+                                    </p>
+                                </div>
+                                <div progressbar="member.progress" dates="dates"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
+        <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+        <script type="text/javascript" src="bower_components/moment/moment.js"></script>
+
+        <script src="https://api.trello.com/1/client.js?key=7f1fd18d0a397f3d0664ae319a624315"></script>
+
+        <script type="text/javascript" src="scripts/chewy.js"></script>
+    </body>
+</html>

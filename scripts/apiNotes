@@ -1,0 +1,9 @@
+Notes about using API
+
+- There should be a very clear starting point
+- Getting started should link to something I can try out asap
+    - Either a client lib with a getting started tutorial
+    - Or an interative example
+- Real examples I can copy and paste would be super useful (this applies mainly to client libs I suppose)
+    - in the vein of a 'picture is worth a thousand words', it explains a lot of small details very quickly
+- It'd be nice if the api page had a different icon because I associate the trello icon with something else entirely so my eye skips it automatically
