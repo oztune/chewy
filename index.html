@@ -49,7 +49,7 @@
                     <h2>Members</h2>
                     <div class="members">
                         <div ng-repeat="row in membersGrid track by $index" class="row">
-                            <div ng-repeat="member in row track by member.id" class="member col-md-6">
+                            <div ng-repeat="member in row track by member.id" class="member col-sm-6">
                                 <div class="content">
                                     <img ng-src="{{member.avatarHash|avatar:50}}" alt="{{member.fullName}}" title="{{member.fullName}}" />
                                     <p class="doing">
