@@ -12,14 +12,20 @@ We can make this more configurable:
 var interval = 5000;
 var debugMode = false;
 
+// debugMode = true;
+// interval = 0; // Don't refresh
+
 var globals = {
     listPatterns: {
-        'todo': /todo/i,
+        'todo': /todo|to do/i,
         'doing': /doing/i,
         'testing': /testing/i,
         'done': /done/i
     }
 };
+
+// Trello's token saving doesn't work very well...
+localStorage.removeItem('trello_token');
 
 (function () {
     'use strict';
@@ -289,7 +295,7 @@ var globals = {
                 item.meta = parseMetaFromName(item.name);
             }
 
-            // Get the meta-data out of each card/checklist/list
+            // Get the metadata out of each card/checklist/list
             $.each(Progress.attrs, function (i, listType) {
                 var list = getList(listType);
                 if (!list) return;
@@ -515,6 +521,8 @@ var globals = {
     })
     .filter('percent', function () {
         return function (value, sigDigits) {
+            if (value < 0) value = 0;
+            if (value > 1) value = 1;
             value = value * 100;
 
             if (sigDigits != null) {
@@ -532,7 +540,7 @@ var globals = {
         }
 
         function calcBusinessDaysBetween(from, to) {
-            var count = 0, from, day;
+            var count = 0, day;
 
             if (from.isAfter(to)) return 0;
 
@@ -621,25 +629,25 @@ var globals = {
     .config(function ($locationProvider) {
         $locationProvider.html5Mode(true).hashPrefix('!');
     })
-    .run(function ($location, $rootScope, $window) {
-        function hasParam(name) {
-            return params[name] || params[name + '/'];
-        }
+    // .run(function ($location, $rootScope, $window) {
+    //     function hasParam(name) {
+    //         return params[name] || params[name + '/'];
+    //     }
 
-        var params = $location.search();
-        if (hasParam('statusboard')) {
-            $rootScope.statusboard = true;
+    //     var params = $location.search();
+    //     if (hasParam('statusboard')) {
+    //         $rootScope.statusboard = true;
 
-            if (!hasParam('noreload')) {
-                // reload in a few
-                $location.search('noreload', true);
+    //         if (!hasParam('noreload')) {
+    //             // reload in a few
+    //             $location.search('noreload', true);
 
-                setTimeout(function () {
-                    $window.location.reload();
-                }, 1000);
-            }
-        }
-    })
+    //             setTimeout(function () {
+    //                 $window.location.reload();
+    //             }, 1000);
+    //         }
+    //     }
+    // })
     .controller('main', function ($scope, trello, storage) {
         //if (skip) return;
         $scope.state = 'unauthorized';
@@ -677,7 +685,7 @@ var globals = {
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
-        var startDate = moment('9/30/2013').add(2 * 1, 'weeks');
+        var startDate = moment('9/30/2013').add(2 * 8, 'weeks');
         $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
 
         function reload() {
@@ -694,7 +702,9 @@ var globals = {
                     $scope.refreshStatus = 'error';
                 })
                 .finally(function () {
-                    timeout = $timeout(reload, interval);
+                    if (interval > 0) {
+                        timeout = $timeout(reload, interval);
+                    }
                 });
         }
 
