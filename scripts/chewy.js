@@ -24,9 +24,6 @@ var globals = {
     }
 };
 
-// Trello's token saving doesn't work very well...
-localStorage.removeItem('trello_token');
-
 (function () {
     'use strict';
 
@@ -666,7 +663,7 @@ localStorage.removeItem('trello_token');
         $scope.clearTrelloAuth = function () {
             window.localStorage && localStorage.removeItem('trello_token');
             alert('removed trello token');
-        }
+        };
 
         $scope.authorize();
     })
