@@ -1,6 +1,6 @@
 @import "uistate.less";
 
-@theme-color: #d6dadf;//#d6d9eb;// #eaeff3;
+@theme-color: #d9e2ed;//#d6dadf;//#d6d9eb;// #eaeff3;
 @bg-color: @theme-color;
 @item-color: darken(@theme-color, 4%);
 @item-img-size: 80px;
@@ -48,7 +48,7 @@ body {
     background-color: @bg-color;
     color: black;
     // background-image: url('https://photos-1.dropbox.com/t/0/AAAT3N2Uu1iLmYlYkoqgIIXfa89szO4T6DOKfG2C2xJqVQ/12/20209187/jpeg/1024x768/3/1382144400/0/2/brickbg_2.jpg/o0CL1fXyxbviQHpNMaXRB6wp-eKRr0fM3j6Ryl2z24A');
-    background-size: cover;
+    // background-size: cover;
 }
 
 html {
@@ -62,6 +62,8 @@ html {
         content: "";
         background: rgba(0,0,0,0.13);
         z-index: -1;
+        background-image: url('../images/brick.png');
+        opacity: 0.6;
     }
 }
 
@@ -180,7 +182,7 @@ html {
         bottom: 0;
 
         &:before {
-            content: 'now';
+            content: 'eob';
             display: block;
             position: absolute;
             bottom: 100%;
@@ -211,7 +213,7 @@ html {
             background-color: @bg-color;
             color: @text-color;
             border: 1px solid @bg-color;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             &:before {
                 font-weight: 200;
@@ -287,9 +289,9 @@ h2 {
 
     p.doing {
         display: inline-block;
-        font-size: 20px;
-        width: 300px;
-        height: 100px;
+        font-size: 16px;
+        width: 215px;
+        height: 80px;
         margin-bottom: 10px;
     }
 
