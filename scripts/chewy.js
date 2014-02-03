@@ -630,25 +630,31 @@ var globals = {
     .config(function ($locationProvider) {
         $locationProvider.html5Mode(true).hashPrefix('!');
     })
-    // .run(function ($location, $rootScope, $window) {
-    //     function hasParam(name) {
-    //         return params[name] || params[name + '/'];
-    //     }
+    .factory('iteration', function () {
+        // Taken from https://github.com/appfigures/bot/blob/master/libs/iteration.js
+        return {
+            daysPerIteration: 14,
+            milestone: {
+                iteration: 42,
+                date: 'Jan 6, 2014'
+            },
+            number: function (date) {
+                var diff;
 
-    //     var params = $location.search();
-    //     if (hasParam('statusboard')) {
-    //         $rootScope.statusboard = true;
+                diff = moment(date).diff(this.milestone.date, 'days');
+                return Math.floor(diff/this.daysPerIteration) + this.milestone.iteration;
+            },
+            startDate: function () {
+                var iteration = this.number(),
+                    diff = iteration - this.milestone.iteration;
 
-    //         if (!hasParam('noreload')) {
-    //             // reload in a few
-    //             $location.search('noreload', true);
-
-    //             setTimeout(function () {
-    //                 $window.location.reload();
-    //             }, 1000);
-    //         }
-    //     }
-    // })
+                return moment(this.milestone.date).add(this.daysPerIteration * diff, 'days');
+            },
+            endDate: function () {
+                return this.startDate().add(this.daysPerIteration, 'days');
+            }
+        };
+    })
     .controller('main', function ($scope, trello, storage) {
         //if (skip) return;
         $scope.state = 'unauthorized';
@@ -672,7 +678,7 @@ var globals = {
 
         $scope.authorize();
     })
-    .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter) {
+    .controller('dashboard', function ($scope, dataHelper, storage, $timeout, $filter, iteration) {
         var timeout,
             images = ['http://media2.giphy.com/media/11EpXR36El6jU4/giphy.gif',
                 'http://31.media.tumblr.com/tumblr_ltr1h3ElWS1qm0f2jo1_500.gif',
@@ -687,8 +693,7 @@ var globals = {
 
         $scope.loadingImage = images[Math.floor(Math.random() * images.length)];
 
-        var startDate = moment('9/30/2013').add(2 * 8, 'weeks');
-        $scope.dates = [startDate, startDate.clone().add(2, 'weeks')];
+        $scope.dates = [iteration.startDate(), iteration.endDate()];
 
         function reload() {
             $timeout.cancel(timeout);
