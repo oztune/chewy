@@ -504,7 +504,8 @@ var globals = {
 
                 return {
                     planned: plannedProgress,
-                    unplanned: unplannedProgress
+                    unplanned: unplannedProgress,
+                    total: plannedProgress.total() + unplannedProgress.total()
                 };
             }
         };
@@ -604,19 +605,22 @@ var globals = {
     })
     .filter('grid', function () {
         return function (array, numCols) {
-            var len, numRows, rows, i, j;
+            var len, numRows, rows, i, j, item;
 
             numCols = numCols || 1;
 
             len = array.length;
-            numRows = Math.floor(len / numCols);
+            numRows = Math.ceil(len / numCols);
             rows = [];
 
             for (i = 0; i < numRows; ++i) {
                 rows[i] = [];
                 rows[i].index = i;
                 for (j = 0; j < numCols; ++j) {
-                    rows[i][j] = array[j + i * numCols];
+                    item = array[j + i * numCols];
+                    if (item) {
+                        rows[i][j] = item;
+                    }
                 }
             }
 
@@ -693,9 +697,14 @@ var globals = {
 
             return dataHelper.calc($scope.boardId)
                 .then(function (data) {
+                    // Only show members with points
+                    var members = $.grep(data.members, function (member) {
+                        return member.progress.total > 0;
+                    });
+
                     $scope.refreshStatus = 'active';
                     $scope.data = data;
-                    $scope.membersGrid = $filter('grid')($scope.data.members, 2);
+                    $scope.membersGrid = $filter('grid')(members, 2);
                 }, function () {
                     $scope.refreshStatus = 'error';
                 })
