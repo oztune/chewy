@@ -567,6 +567,8 @@ var globals = {
                 scope.progressAttrs = Progress.attrs;
                 scope.segments = [];
                 scope.$watch('data', function (data) {
+                    if (!data) return;
+                    
                     var plannedTotal = data.planned.total(),
                         grandTotal = plannedTotal + data.unplanned.total(),
                         dates;
